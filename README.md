@@ -134,6 +134,115 @@ npm start
 npm run start:cluster
 ```
 
+## Docker Deployment
+
+The project includes a complete Docker setup with multi-container support using Docker Compose. The setup includes:
+
+- Nginx reverse proxy
+- Multiple API server instances
+- MongoDB
+- MySQL
+- DynamoDB (local)
+- Prometheus monitoring
+- Grafana dashboards
+
+### Prerequisites for Docker Deployment
+
+- Docker Engine 20.10.x or later
+- Docker Compose V2 or later
+- At least 4GB of RAM available
+
+### Environment Setup for Docker
+
+1. Create a `.env` file in the project root:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Update the following Docker-specific variables in `.env`:
+   ```env
+   # Docker Environment Variables
+   MONGO_ROOT_USERNAME=admin
+   MONGO_ROOT_PASSWORD=your_secure_password
+   MYSQL_ROOT_PASSWORD=your_secure_password
+   GRAFANA_PASSWORD=your_secure_password
+   
+   # Other variables as specified in the Configuration section
+   ```
+
+### Starting the Application with Docker
+
+1. Build and start all services:
+   ```bash
+   docker compose up -d
+   ```
+
+2. Build and start specific services:
+   ```bash
+   # Start only the API server and required databases
+   docker compose up -d api_server mongodb mysql dynamodb
+   
+   # Start monitoring stack
+   docker compose up -d prometheus grafana
+   ```
+
+3. View logs:
+   ```bash
+   # All containers
+   docker compose logs -f
+   
+   # Specific service
+   docker compose logs -f api_server
+   ```
+
+### Docker Service URLs
+
+- API Server: http://localhost/api/v1
+- Prometheus: http://localhost:9090
+- Grafana: http://localhost:3000
+- MongoDB: localhost:27017
+- MySQL: localhost:3306
+- DynamoDB: http://localhost:8000
+
+### Scaling the API Server
+
+```bash
+# Scale to 3 instances
+docker compose up -d --scale api_server=3
+```
+
+### Stopping the Application
+
+```bash
+# Stop all services
+docker compose down
+
+# Stop and remove volumes (will delete all data)
+docker compose down -v
+```
+
+### Health Checks
+
+All services are configured with health checks. Monitor their status with:
+```bash
+docker compose ps
+```
+
+### Container Logs
+
+Logs are configured with rotation to prevent disk space issues:
+- Maximum log file size: 10MB
+- Maximum number of log files: 3
+
+Access logs directory:
+```bash
+# API server logs
+docker compose exec api_server ls /app/logs
+
+# Nginx logs
+docker compose exec nginx ls /var/log/nginx
+```
+
 ## API Documentation
 
 ### Authentication Endpoints
